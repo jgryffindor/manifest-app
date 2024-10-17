@@ -31,6 +31,6 @@ build:
     # - docker push  ${ARTIFACT_NAME}
 
     # Docker login for another user with a personal access token and push to docker hub
-    - echo "$DOCKER_HUB_PASSWORD" | docker login -u $DOCKER_HUB_USER --password-stdin
+    - docker login -u $DOCKER_HUB_USER --password $DOCKER_HUB_PASSWORD
     - docker tag ${ARTIFACT_NAME} $DOCKER_HUB_USER/${ARTIFACT_NAME}
     - docker push $DOCKER_HUB_USER/${ARTIFACT_NAME}
