@@ -34,12 +34,27 @@ build:
     GIT_SUBMODULE_STRATEGY: recursive
     DOCKER_CLIENT_TIMEOUT: 600
     COMPOSE_HTTP_TIMEOUT: 600
+    SECURE_FILES_DOWNLOAD_PATH: './'
   # only:
   #   - tags
   # rules:
   # - if: $CI_COMMIT_TAG && $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"
   tags:
     - docker-builder
+  before_script:
+    - apt-get update && apt-get -y install curl
+    - ping -c 4 registry.liftedinit.org
+    # - curl -v https://registry.liftedinit.org:8443/v2/
+    - docker info
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - |
+      curl --request GET -H "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.liftedinit.org/api/v4/projects/$CI_PROJECT_ID/secure_files > secure_files.json
+      cat secure_files.json | jq '.[] | "\(.id),\(.name)"' | tr -d '"' > files.txt
+      while IFS=, read -a line;
+      do set -- "${line[@]}";
+          curl --request GET --header "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/secure_files/$1/download > $2;
+      done < files.txt
+    - ls -la
   script:
     - export ARTIFACT_NAME="$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}"
     # - docker build -t ${ARTIFACT_NAME} .
