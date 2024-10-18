@@ -26,10 +26,9 @@ setup:
     - |
       curl --request GET -H "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.liftedinit.org/api/v4/projects/$CI_PROJECT_ID/secure_files > secure_files.json
       cat secure_files.json
-      cat secure_files.json | jq '.[] | "\(.id),\(.name)"' | tr -d '"' > files.txt
+      cat secure_files.json | jq -r '.[] | "\(.id),\(.name)"' > files.txt
       while IFS=, read -r id name; do
-      do set -- "${line[@]}";
-          curl --request GET --header "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/secure_files/$1/download > $2;
+          curl --request GET --header "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.liftedinit.org/api/v4/projects/$CI_PROJECT_ID/secure_files/$id/download > $name
       done < files.txt
     - ls -la
 
