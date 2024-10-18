@@ -24,8 +24,6 @@ setup:
     - docker info
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - |
-      CI_JOB_TOKEN=81xbf_AwFT2HNfH6BozY
-      CI_PROJECT_ID=200
       curl --request GET -H "JOB-TOKEN: $CI_JOB_TOKEN" https://gitlab.liftedinit.org/api/v4/projects/$CI_PROJECT_ID/secure_files > secure_files.json
       cat secure_files.json
       cat secure_files.json | jq '.[] | "\(.id),\(.name)"' | tr -d '"' > files.txt
